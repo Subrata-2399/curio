@@ -1,0 +1,66 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ErrorLogMonitor {
+    private List<LogEntry> logs = new ArrayList<>();
+    private Map<String, List<LogEntry>> logsByType = new HashMap<>();
+
+    public void addLog(long timestamp, String logType, double severity) {
+        LogEntry entry = new LogEntry(timestamp, logType, severity);
+        logs.add(entry);
+        logsByType.computeIfAbsent(logType, k -> new ArrayList<>()).add(entry);
+    }
+
+    public double meanSeverityByType(String logType) {
+        List<LogEntry> entries = logsByType.get(logType);
+        if (entries == null || entries.isEmpty()) {
+            return 0.0;
+        }
+        double totalSeverity = entries.stream().mapToDouble(entry -> entry.severity).sum();
+        return totalSeverity / entries.size();
+    }
+
+    public double meanSeverityBefore(long timestamp) {
+        List<LogEntry> logsBefore = logs.stream().filter(entry -> entry.timestamp < timestamp).collect(Collectors.toList());
+        if (logsBefore.isEmpty()) {
+            return 0.0;
+        }
+        double totalSeverity = logsBefore.stream().mapToDouble(entry -> entry.severity).sum();
+        return totalSeverity / logsBefore.size();
+    }
+
+    public double meanSeverityAfter(long timestamp) {
+        List<LogEntry> logsAfter = logs.stream().filter(entry -> entry.timestamp > timestamp).collect(Collectors.toList());
+        if (logsAfter.isEmpty()) {
+            return 0.0;
+        }
+        double totalSeverity = logsAfter.stream().mapToDouble(entry -> entry.severity).sum();
+        return totalSeverity / logsAfter.size();
+    }
+
+    public double meanSeverityByTypeBefore(String logType, long timestamp) {
+        List<LogEntry> entries = logsByType.get(logType);
+        if (entries == null || entries.isEmpty()) {
+            return 0.0;
+        }
+        List<LogEntry> logsBefore = entries.stream().filter(entry -> entry.timestamp < timestamp).collect(Collectors.toList());
+        if (logsBefore.isEmpty()) {
+            return 0.0;
+        }
+        double totalSeverity = logsBefore.stream().mapToDouble(entry -> entry.severity).sum();
+        return totalSeverity / logsBefore.size();
+    }
+
+    public double meanSeverityByTypeAfter(String logType, long timestamp) {
+        List<LogEntry> entries = logsByType.get(logType);
+        if (entries == null || entries.isEmpty()) {
+            return 0.0;
+        }
+        List<LogEntry> logsAfter = entries.stream().filter(entry -> entry.timestamp > timestamp).collect(Collectors.toList());
+        if (logsAfter.isEmpty()) {
+            return 0.0;
+        }
+        double totalSeverity = logsAfter.stream().mapToDouble(entry -> entry.severity).sum();
+        return totalSeverity / logsAfter.size();
+    }
+}

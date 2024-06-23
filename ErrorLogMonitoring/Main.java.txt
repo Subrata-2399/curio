@@ -1,0 +1,64 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        ErrorLogMonitor monitor = new ErrorLogMonitor();
+        List<String> results = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("input.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(" ");
+                String command = parts[0];
+
+                switch (command) {
+                    case "1":
+                        String[] logParts = parts[1].split(";");
+                        long timestamp = Long.parseLong(logParts[0]);
+                        String logType = logParts[1];
+                        double severity = Double.parseDouble(logParts[2]);
+                        monitor.addLog(timestamp, logType, severity);
+                        break;
+                    case "2":
+                        logType = parts[1];
+                        double meanSeverity = monitor.meanSeverityByType(logType);
+                        results.add(String.format("Mean: %.6f", meanSeverity));
+                        break;
+                    case "3":
+                        String direction = parts[1];
+                        timestamp = Long.parseLong(parts[2]);
+                        if ("BEFORE".equals(direction)) {
+                            meanSeverity = monitor.meanSeverityBefore(timestamp);
+                        } else {
+                            meanSeverity = monitor.meanSeverityAfter(timestamp);
+                        }
+                        results.add(String.format("Mean: %.6f", meanSeverity));
+                        break;
+                    case "4":
+                        direction = parts[1];
+                        logType = parts[2];
+                        timestamp = Long.parseLong(parts[3]);
+                        if ("BEFORE".equals(direction)) {
+                            meanSeverity = monitor.meanSeverityByTypeBefore(logType, timestamp);
+                        } else {
+                            meanSeverity = monitor.meanSeverityByTypeAfter(logType, timestamp);
+                        }
+                        results.add(String.format("Mean: %.6f", meanSeverity));
+                        break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
+            for (String result : results) {
+                writer.write(result);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

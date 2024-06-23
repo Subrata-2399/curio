@@ -1,0 +1,16 @@
+public class LogEntry implements Comparable<LogEntry> {
+    long timestamp;
+    String logType;
+    double severity;
+
+    public LogEntry(long timestamp, String logType, double severity) {
+        this.timestamp = timestamp;
+        this.logType = logType;
+        this.severity = severity;
+    }
+
+    @Override
+    public int compareTo(LogEntry other) {
+        return Long.compare(this.timestamp, other.timestamp);
+    }
+}
